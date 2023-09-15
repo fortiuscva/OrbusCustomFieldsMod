@@ -1,0 +1,39 @@
+{
+  "id": "c4145162-ba8a-4371-b2d5-97e3dac8161b",
+  "name": "OrbusCustomFieldsMod",
+  "publisher": "Orbus, Inc.",
+  "description": "Update to Order Status. Adding In Production",
+  "version": "1.0.2.47",
+  "url": "https://www.impactmybiz.com/",
+  "logo": "/logo/ImpactLogo.jfif",
+  "runtime": "11.0",
+  "target": "Cloud",
+  "application": "22.0.0.0",
+  "platform": "22.0.0.0",
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": false,
+    "applyToDevExtension": false
+  },
+  "dependencies": [
+    {
+      "id": "c381967e-7387-467a-95e8-58d929296681",
+      "name": "BC_Release&Pick",
+      "version": "1.0.0.1",
+      "publisher": "Impact Networking"
+    },
+    {
+      "id": "f8d3d8de-1d19-4c9f-913d-ba91ad53d40b",
+      "name": "OrbusReports",
+      "version": "1.0.0.104",
+      "publisher": "Alex Vescovi"
+    }
+  ],
+  "idRanges": [
+    {
+      "from": 50100,
+      "to": 60349
+    }
+  ]
+}
