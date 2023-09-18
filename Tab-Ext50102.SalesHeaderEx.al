@@ -79,7 +79,21 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
                     ModLocationCodeHeader.ModifyDimSetEntry2(Rec);
                 end;
                 */
-                Rec.Validate("Shortcut Dimension 1 Code", Rec."Location Code");
+                if Rec."Location Code" <> '' then
+                    Rec.Validate("Shortcut Dimension 1 Code", Rec."Location Code");
+
+
+
+                salesLine.Reset();
+                salesLine.SetRange("Document Type", Rec."Document Type");
+                salesLine.SetRange("Document No.", Rec."No.");
+                if salesLine.FindSet() then
+                    repeat
+                        salesLine.Validate("Location Code", rec."Location Code");
+                        //if salesLine."Location Code" <> '' then
+                        //salesLine.validate("Shortcut Dimension 1 Code", salesLine."Location Code");
+                        salesLine.Modify();
+                    until salesLine.Next() = 0;
             end;
         }
         modify("Ship-to County")

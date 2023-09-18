@@ -1,6 +1,6 @@
 codeunit 50109 ModLocationCodeHeader2
 {
-    Permissions = tabledata "Sales Header"=RIMD;
+    Permissions = tabledata "Sales Header" = RIMD;
     TableNo = "Job Queue Entry";
 
     trigger OnRun()
@@ -9,6 +9,7 @@ codeunit 50109 ModLocationCodeHeader2
         dimensionsetentry: Record "Dimension Set Entry";
         DimensionValue: Record "Dimension Value";
     begin
+        /*
         Salesheader.Reset();
         Salesheader.SetRange("Document Type", Salesheader."Document Type"::Order);
         if Salesheader.FindSet()then repeat dimensionsetentry.Reset();
@@ -33,5 +34,6 @@ codeunit 50109 ModLocationCodeHeader2
                     end;
                 end;
             until Salesheader.Next() = 0;
+        */
     end;
 }

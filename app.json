@@ -5,7 +5,6 @@
   "description": "Update to Order Status. Adding In Production",
   "version": "1.0.2.47",
   "url": "https://www.impactmybiz.com/",
-  "logo": "/logo/ImpactLogo.jfif",
   "runtime": "11.0",
   "target": "Cloud",
   "application": "22.0.0.0",
