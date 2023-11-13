@@ -3,12 +3,15 @@ codeunit 50108 ModLocationCodeHeader
     Permissions = tabledata "Dimension Set Entry" = RIMD;
     TableNo = "Sales Header";
 
+    //DimFix
+    /*
     trigger OnRun()
     var
         DimensionSetEntry: Record "Dimension Set Entry";
         DimensionValue: Record "Dimension Value";
         SalesLine: Record "Sales Line";
     begin
+        
         SalesLine.Reset();
         SalesLine.SetRange("Document No.", Rec."No.");
         if SalesLine.FindSet() then
@@ -141,4 +144,5 @@ codeunit 50108 ModLocationCodeHeader
                 end;
             until Salesheader.Next() = 0;
     end;
+    */
 }

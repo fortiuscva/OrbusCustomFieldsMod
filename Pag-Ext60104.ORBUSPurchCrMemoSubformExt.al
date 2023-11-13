@@ -2,14 +2,15 @@ pageextension 60104 "ORBUS.PurchCrMemoSubformExt" extends "Purch. Cr. Memo Subfo
 {
     layout
     {
-        modify("Shortcut Dimension 1 Code")
-        {
-            Visible = true;
-        }
-        modify("Shortcut Dimension 2 Code")
-        {
-            Visible = true;
-        }
+        //DimFix
+        // modify("Shortcut Dimension 1 Code")
+        // {
+        //     Visible = true;
+        // }
+        // modify("Shortcut Dimension 2 Code")
+        // {
+        //     Visible = true;
+        // }
         addafter("Shortcut Dimension 2 Code")
         {
             field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")

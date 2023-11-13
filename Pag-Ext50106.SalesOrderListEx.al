@@ -47,14 +47,16 @@ pageextension 50106 SalesOrderListEx extends "Sales Order List"
                     SalesHeader: Record "Sales Header";
                     UpdatedOrder: Record "Sales Header";
                 begin
-                    if(Rec."Shipping Agent Code" = '') and (Rec."Shipping Agent Service Code" = '')then Error('Shipping Agent Code and Shipping Agent Service have a value of "blank". Both fields need a value other than "blank"');
-                    if(Rec."Shipping Agent Code" = '')then Error('Shipping Agent Code cannot have a value of "blank"');
+                    if (Rec."Shipping Agent Code" = '') and (Rec."Shipping Agent Service Code" = '') then Error('Shipping Agent Code and Shipping Agent Service have a value of "blank". Both fields need a value other than "blank"');
+                    if (Rec."Shipping Agent Code" = '') then Error('Shipping Agent Code cannot have a value of "blank"');
                     if Rec."Shipping Agent Service Code" = '' then Error('Shipping Agent Service Code cannot have a value of "blank"');
                     CurrPage.SetSelectionFilter(SalesHeader);
                     SalesHeader.MarkedOnly(true);
-                    IF SalesHeader.FindSet()then repeat ReleasePick.CreateWhseShipment_Pick(SalesHeader);
+                    IF SalesHeader.FindSet() then
+                        repeat
+                            ReleasePick.CreateWhseShipment_Pick(SalesHeader);
                             UpdatedOrder.get(SalesHeader."Document Type", SalesHeader."No.");
-                            UpdatedOrder."Order Status":=UpdatedOrder."Order Status"::"Pick Released";
+                            UpdatedOrder."Order Status" := UpdatedOrder."Order Status"::"Pick Released";
                             UpdatedOrder.Modify();
                         Until SalesHeader.Next() = 0;
                     CurrPage.Update();
@@ -79,16 +81,19 @@ pageextension 50106 SalesOrderListEx extends "Sales Order List"
                     CurrPage.SetSelectionFilter(SalesHdr);
                     SalesHdr.MarkedOnly(true);
                     Clear(WorkOrder);
-                    IF SalesHdr.FindSet()then begin
-                        repeat ProdHdr.SetRange("Sales Order No.", SalesHdr."No.");
-                            if ProdHdr.FindSet()then repeat ProdHdr.mark(true);
+                    IF SalesHdr.FindSet() then begin
+                        repeat
+                            ProdHdr.SetRange("Sales Order No.", SalesHdr."No.");
+                            if ProdHdr.FindSet() then
+                                repeat
+                                    ProdHdr.mark(true);
                                 until ProdHdr.Next() = 0;
                         until SalesHdr.Next() = 0;
                         ProdHdr.MarkedOnly(true);
                         WorkOrder.SetTableView(SalesHdr);
                         WorkOrder.UseRequestPage(false);
                         WorkOrder.Runmodal();
-                        IF ProdHdr.FindSet()then Report.Runmodal(Report::"Custom Production Order", false, true, ProdHdr);
+                        IF ProdHdr.FindSet() then Report.Runmodal(Report::"Custom Production Order", false, true, ProdHdr);
                     end;
                 end;
             }
@@ -114,23 +119,25 @@ pageextension 50106 SalesOrderListEx extends "Sales Order List"
                     iStream: InStream;
                 begin
                     CurrPage.SetSelectionFilter(saleshdr);
-                    ZipFileName:='SalesOrders_' + Format(CurrentDateTime) + '.zip';
+                    ZipFileName := 'SalesOrders_' + Format(CurrentDateTime) + '.zip';
                     DataCompression.CreateZipArchive();
-                    if saleshdr.FindSet()then repeat Clear(OStream);
+                    if saleshdr.FindSet() then
+                        repeat
+                            Clear(OStream);
                             Clear(TempBlob);
                             Clear(recref);
                             Clear(FldRef);
                             TempBlob.CreateOutStream(OStream);
                             RecRef.OPEN(Database::"Sales Header");
-                            FldRef:=RecRef.Field(saleshdr.fieldno("No."));
+                            FldRef := RecRef.Field(saleshdr.fieldno("No."));
                             FldRef.SetRange(saleshdr."No.");
                             if RecRef.FindFirst then begin
                                 //RecRef.SetTable(PrintHdr, false);
                                 Report.SaveAs(Report::"Work Order", '', ReportFormat::Pdf, oStream, RecRef);
                                 TempBlob.CreateInStream(iStream);
-                                PdfFileName:=Format(saleshdr."No." + '_ Work Order' + '_' + Format(CURRENTDATETIME, 0, '<Day,2><Month,2><Year4><Hours24><Minutes,2><Seconds,2>') + '.pdf');
+                                PdfFileName := Format(saleshdr."No." + '_ Work Order' + '_' + Format(CURRENTDATETIME, 0, '<Day,2><Month,2><Year4><Hours24><Minutes,2><Seconds,2>') + '.pdf');
                                 DataCompression.AddEntry(iStream, PdfFileName);
-                            //FileManagement.BLOBExport(TempBlob, saleshdr."No." + '_ Work Order' + '_' + Format(CURRENTDATETIME, 0, '<Day,2><Month,2><Year4><Hours24><Minutes,2><Seconds,2>') + '.pdf', true);
+                                //FileManagement.BLOBExport(TempBlob, saleshdr."No." + '_ Work Order' + '_' + Format(CURRENTDATETIME, 0, '<Day,2><Month,2><Year4><Hours24><Minutes,2><Seconds,2>') + '.pdf', true);
                             end;
                         until saleshdr.Next() = 0;
                     TempBlob.CreateOutStream(oStream);
@@ -149,30 +156,32 @@ pageextension 50106 SalesOrderListEx extends "Sales Order List"
             begin
                 UserSetup.Reset();
                 UserSetup.SetRange("User ID", UserId());
-                if UserSetup.FindFirst()then begin
+                if UserSetup.FindFirst() then begin
                     if UserSetup.AllowRelease = false then Error('User: %1 does not have permission to change status of sales order back to "open"', UserId());
                 end;
             end;
         }
-        modify(Release)
-        {
-            trigger OnBeforeAction()
-            var
-                GetValues: Codeunit GetDimSetValues;
-                SalesLine: Record "Sales Line";
-                DimensionSetEntry: Record "Dimension Set Entry";
-            begin
-                SalesLine.Reset();
-                SalesLine.SetRange("Document No.", Rec."No.");
-                if SalesLine.FindSet()then repeat DimensionSetEntry.Reset();
-                        DimensionSetEntry.SetRange("Dimension Set ID", SalesLine."Dimension Set ID");
-                        DimensionSetEntry.SetFilter("Dimension Code", 'LOC');
-                        if DimensionSetEntry.FindFirst()then exit
-                        else
-                            GetValues.GetDimSetValues(SalesLine."Shortcut Dimension 1 Code", SalesLine."Dimension Set ID");
-                    until SalesLine.Next() = 0;
-            end;
-        }
+        //DimFix
+        // modify(Release)
+        // {
+        //     trigger OnBeforeAction()
+        //     var
+        //         GetValues: Codeunit GetDimSetValues;
+        //         SalesLine: Record "Sales Line";
+        //         DimensionSetEntry: Record "Dimension Set Entry";
+        //     begin
+        //         SalesLine.Reset();
+        //         SalesLine.SetRange("Document No.", Rec."No.");
+        //         if SalesLine.FindSet()then repeat DimensionSetEntry.Reset();
+        //                 DimensionSetEntry.SetRange("Dimension Set ID", SalesLine."Dimension Set ID");
+        //                 DimensionSetEntry.SetFilter("Dimension Code", 'LOC');
+        //                 if DimensionSetEntry.FindFirst()then exit
+        //                 else
+        //                     GetValues.GetDimSetValues(SalesLine."Shortcut Dimension 1 Code", SalesLine."Dimension Set ID");
+        //             until SalesLine.Next() = 0;
+        //     end;
+        // }
     }
-    var myInt: Integer;
+    var
+        myInt: Integer;
 }

@@ -39,7 +39,7 @@ pageextension 50104 SalesOrderPageEx extends "Sales Order"
         {
             trigger OnAfterValidate()
             begin
-                Rec."Location Override":=true;
+                Rec."Location Override" := true;
                 CurrPage.Update(true);
             end;
         }
@@ -64,7 +64,7 @@ pageextension 50104 SalesOrderPageEx extends "Sales Order"
                 SalesHeader: Record "Sales Header";
             begin
                 SalesHeader.Get(Rec."Document Type", Rec."No.");
-                SalesHeader:=Rec;
+                SalesHeader := Rec;
                 //SalesHeader."Ship-to County" := Rec."Ship-to County";
                 SalesHeader.Modify(true);
                 CurrPage.Update(false);
@@ -106,8 +106,8 @@ pageextension 50104 SalesOrderPageEx extends "Sales Order"
             begin
                 Customer.Reset();
                 Customer.SetRange("No.", Rec."Sell-to Customer No.");
-                if Customer.FindFirst()then begin
-                    Rec."Industry Shortcut Dimension":=Customer."Shortcut Dimension 6 Code";
+                if Customer.FindFirst() then begin
+                    Rec."Industry Shortcut Dimension" := Customer."Shortcut Dimension 6 Code";
                     Rec.Modify();
                 end;
             end;
@@ -120,34 +120,37 @@ pageextension 50104 SalesOrderPageEx extends "Sales Order"
             begin
                 Customer.Reset();
                 Customer.SetRange(Name, Rec."Sell-to Customer Name");
-                if Customer.FindFirst()then begin
-                    Rec."Industry Shortcut Dimension":=Customer."Shortcut Dimension 6 Code";
+                if Customer.FindFirst() then begin
+                    Rec."Industry Shortcut Dimension" := Customer."Shortcut Dimension 6 Code";
                     Rec.Modify();
                 end;
             end;
         }
-        modify(ShippingOptions)
-        {
-            trigger OnAfterValidate()
-            var
-                OrbusLocation: Record OrbusLocations;
-                SalesLine: Record "Sales Line";
-            begin
-                OrbusLocation.Reset();
-                OrbusLocation.SetRange("Orbus State Text", Rec."Ship-to County");
-                if OrbusLocation.FindFirst()then begin
-                    Rec."Location Code":=OrbusLocation.OrbusLocation;
-                    Rec."Shortcut Dimension 1 Code":=OrbusLocation.OrbusLocation;
-                    Rec.Modify();
-                    SalesLine.Reset();
-                    SalesLine.SetRange("Document No.", Rec."No.");
-                    if SalesLine.FindSet()then repeat SalesLine."Location Code":=OrbusLocation.OrbusLocation;
-                            SalesLine."Shortcut Dimension 1 Code":=OrbusLocation.OrbusLocation;
-                            SalesLine.Modify();
-                        until SalesLine.Next() = 0;
-                end;
-            end;
-        }
+        //DimFix
+        // modify(ShippingOptions)
+        // {
+        //     trigger OnAfterValidate()
+        //     var
+        //         OrbusLocation: Record OrbusLocations;
+        //         SalesLine: Record "Sales Line";
+        //     begin
+        //         OrbusLocation.Reset();
+        //         OrbusLocation.SetRange("Orbus State Text", Rec."Ship-to County");
+        //         if OrbusLocation.FindFirst() then begin
+        //             Rec."Location Code" := OrbusLocation.OrbusLocation;
+        //             Rec."Shortcut Dimension 1 Code" := OrbusLocation.OrbusLocation;
+        //             Rec.Modify();
+        //             SalesLine.Reset();
+        //             SalesLine.SetRange("Document No.", Rec."No.");
+        //             if SalesLine.FindSet() then
+        //                 repeat
+        //                     SalesLine."Location Code" := OrbusLocation.OrbusLocation;
+        //                     SalesLine."Shortcut Dimension 1 Code" := OrbusLocation.OrbusLocation;
+        //                     SalesLine.Modify();
+        //                 until SalesLine.Next() = 0;
+        //         end;
+        //     end;
+        // }
     }
     actions
     {
@@ -167,28 +170,30 @@ pageextension 50104 SalesOrderPageEx extends "Sales Order"
                     Error('You are not allowed to Release Sales Orders');
                 end;
             end;
-            trigger OnAfterAction()
-            var
-                SaleslIne: Record "Sales Line";
-                DimensionSetEntry: Record "Dimension Set Entry";
-                GetDimSetValues: Codeunit GetDimSetValues;
-                ModLocationCodeHeader: Codeunit ModLocationCodeHeader;
-            begin
-                SalesLine.Reset();
-                SalesLine.SetRange("Document No.", Rec."No.");
-                if SalesLine.FindSet()then repeat SalesLine."Shortcut Dimension 1 Code":=SalesLine."Location Code";
-                        SalesLine.Modify();
-                        DimensionSetEntry.Reset();
-                        DimensionSetEntry.SetRange("Dimension Set ID", SalesLine."Dimension Set ID");
-                        DimensionSetEntry.SetFilter("Dimension Code", 'LOC');
-                        if DimensionSetEntry.FindFirst()then begin
-                            GetDimSetValues.ModifyDimSetValuesForLines(SalesLine."Dimension Set ID", SalesLine."Location Code");
-                        end
-                        else
-                            GetDimSetValues.GetDimSetValues(SalesLine."Shortcut Dimension 1 Code", SalesLine."Dimension Set ID");
-                    until SalesLine.Next() = 0;
-                ModLocationCodeHeader.InsertDimensionSetEntryFromSalesHeader(Rec);
-            end;
+            //DimFix
+            // trigger OnAfterAction()
+            // var
+            //     SaleslIne: Record "Sales Line";
+            //     DimensionSetEntry: Record "Dimension Set Entry";
+            //     GetDimSetValues: Codeunit GetDimSetValues;
+            //     ModLocationCodeHeader: Codeunit ModLocationCodeHeader;
+            // begin
+            //     SalesLine.Reset();
+            //     SalesLine.SetRange("Document No.", Rec."No.");
+            //     if SalesLine.FindSet()then repeat SalesLine."Shortcut Dimension 1 Code":=SalesLine."Location Code";
+            //             SalesLine.Modify();
+            //             DimensionSetEntry.Reset();
+            //             DimensionSetEntry.SetRange("Dimension Set ID", SalesLine."Dimension Set ID");
+            //             DimensionSetEntry.SetFilter("Dimension Code", 'LOC');
+            //             if DimensionSetEntry.FindFirst()then begin
+            //                 GetDimSetValues.ModifyDimSetValuesForLines(SalesLine."Dimension Set ID", SalesLine."Location Code");
+            //             end
+            //             else
+            //                 GetDimSetValues.GetDimSetValues(SalesLine."Shortcut Dimension 1 Code", SalesLine."Dimension Set ID");
+            //         until SalesLine.Next() = 0;
+            //     ModLocationCodeHeader.InsertDimensionSetEntryFromSalesHeader(Rec);
+            // end;
+
         }
         modify("Release & Pick")
         {
@@ -203,20 +208,25 @@ pageextension 50104 SalesOrderPageEx extends "Sales Order"
                     Error('You are not allowed to Release Sales Orders');
                 end;
             end;
+
             trigger OnAfterAction()
             var
                 SalesLine: Record "Sales Line";
                 ModLocationCodeHeader: Codeunit ModLocationCodeHeader;
             begin
-                Rec."Order Status":=Rec."Order Status"::"Pick Released";
+                Rec."Order Status" := Rec."Order Status"::"Pick Released";
                 Rec.Modify();
                 CurrPage.Update();
-                Salesline.Reset();
-                Salesline.SetRange("Document No.", Rec."No.");
-                if Salesline.FindSet()then repeat Salesline."Shortcut Dimension 1 Code":=Salesline."Location Code";
-                        Salesline.Modify();
-                    until Salesline.Next() = 0;
-                ModLocationCodeHeader.InsertDimensionSetEntryFromSalesHeader(Rec);
+
+                //DimFix
+                // Salesline.Reset();
+                // Salesline.SetRange("Document No.", Rec."No.");
+                // if Salesline.FindSet() then
+                //     repeat
+                //         Salesline."Shortcut Dimension 1 Code" := Salesline."Location Code";
+                //         Salesline.Modify();
+                //     until Salesline.Next() = 0;
+                // ModLocationCodeHeader.InsertDimensionSetEntryFromSalesHeader(Rec);
             end;
         }
         modify("Create &Warehouse Shipment")
@@ -226,12 +236,15 @@ pageextension 50104 SalesOrderPageEx extends "Sales Order"
                 SalesLine: Record "Sales Line";
                 ModLocationCodeHeader: Codeunit ModLocationCodeHeader;
             begin
-                Salesline.Reset();
-                Salesline.SetRange("Document No.", Rec."No.");
-                if Salesline.FindSet()then repeat Salesline."Shortcut Dimension 1 Code":=Salesline."Location Code";
-                        Salesline.Modify();
-                    until Salesline.Next() = 0;
-                ModLocationCodeHeader.InsertDimensionSetEntryFromSalesHeader(Rec);
+                //DimFix
+                // Salesline.Reset();
+                // Salesline.SetRange("Document No.", Rec."No.");
+                // if Salesline.FindSet() then
+                //     repeat
+                //         Salesline."Shortcut Dimension 1 Code" := Salesline."Location Code";
+                //         Salesline.Modify();
+                //     until Salesline.Next() = 0;
+                // ModLocationCodeHeader.InsertDimensionSetEntryFromSalesHeader(Rec);
             end;
         }
         addlast("&Print")
@@ -256,7 +269,7 @@ pageextension 50104 SalesOrderPageEx extends "Sales Order"
                     // ProdHdr.SetRange("Source No.", Rec."No.");
                     // ProdHdr.SetRange("Source Type", ProdHdr."Source Type"::"Sales Header");
                     ProdHdr.SetRange("Sales Order No.", SalesHdr."No.");
-                    if ProdHdr.FindSet()then Report.Run(Report::"Custom Production Order", false, false, ProdHdr);
+                    if ProdHdr.FindSet() then Report.Run(Report::"Custom Production Order", false, false, ProdHdr);
                 end;
             }
             action(GetLocationEnums)
@@ -270,7 +283,9 @@ pageextension 50104 SalesOrderPageEx extends "Sales Order"
                     OrbusLocatiosn: Record OrbusLocations;
                 begin
                     OrbusLocatiosn.Reset();
-                    if OrbusLocatiosn.FindSet()then repeat OrbusLocatiosn."Orbus State Text":=Format(OrbusLocatiosn.OrbusState, 0, '<Text>');
+                    if OrbusLocatiosn.FindSet() then
+                        repeat
+                            OrbusLocatiosn."Orbus State Text" := Format(OrbusLocatiosn.OrbusState, 0, '<Text>');
                             OrbusLocatiosn.Modify();
                         until OrbusLocatiosn.Next() = 0;
                 end;
@@ -284,7 +299,7 @@ pageextension 50104 SalesOrderPageEx extends "Sales Order"
             begin
                 UserSetup.Reset();
                 UserSetup.SetRange("User ID", UserId());
-                if UserSetup.FindFirst()then begin
+                if UserSetup.FindFirst() then begin
                     if UserSetup.AllowRelease = false then Error('User: %1 does not have permission to change status on sales order back to "open"', UserId());
                 end;
             end;
@@ -298,21 +313,25 @@ pageextension 50104 SalesOrderPageEx extends "Sales Order"
                 ModLocationCodeHeader.InsertDimensionSetEntryFromSalesHeader(Rec);
             end;
         }*/
-        modify(Dimensions)
-        {
-            trigger OnBeforeAction()
-            var
-            begin
-                var1:=Rec."Location Code";
-            end;
-            trigger OnAfterAction()
-            var
-            begin
-                Rec."Location Code":=var1;
-                Rec."Shortcut Dimension 1 Code":=var1;
-                Rec.Modify();
-            end;
-        }
+        //DimFix
+        // modify(Dimensions)
+        // {
+        //     trigger OnBeforeAction()
+        //     var
+        //     begin
+        //         var1 := Rec."Location Code";
+        //     end;
+
+        //     trigger OnAfterAction()
+        //     var
+        //     begin
+        //         Rec."Location Code" := var1;
+        //         Rec."Shortcut Dimension 1 Code" := var1;
+        //         Rec.Modify();
+        //     end;
+        // }
+
     }
-    var var1: Text;
+    var
+        var1: Text;
 }
