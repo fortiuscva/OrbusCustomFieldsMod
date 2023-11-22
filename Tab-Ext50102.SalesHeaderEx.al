@@ -97,22 +97,24 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
                 //         salesLine.Modify();
                 //     until salesLine.Next() = 0;
 
-                if rec."Location Code" <> '' then
-                    Validate("Shortcut Dimension 1 Code", rec."Location Code")
-                else begin
-                    if rec."Shortcut Dimension 1 Code" <> '' then
-                        Validate("Shortcut Dimension 1 Code", '');
+                DimUpdateFromDimWindowGbl := ORBSingleInstGbl.GetDimUpdateFromDimWindow();
+                if not DimUpdateFromDimWindowGbl then begin
+                    if rec."Location Code" <> '' then
+                        Validate("Shortcut Dimension 1 Code", rec."Location Code")
+                    else begin
+                        if rec."Shortcut Dimension 1 Code" <> '' then
+                            Validate("Shortcut Dimension 1 Code", '');
+                    end;
                 end;
 
-
-                // salesLine.Reset();
-                // salesLine.SetRange("Document Type", Rec."Document Type");
-                // salesLine.SetRange("Document No.", Rec."No.");
-                // if salesLine.FindSet() then
-                //     repeat
-                //         salesLine.Validate("Location Code", rec."Location Code");
-                //         salesLine.Modify();
-                //     until salesLine.Next() = 0;
+                salesLine.Reset();
+                salesLine.SetRange("Document Type", Rec."Document Type");
+                salesLine.SetRange("Document No.", Rec."No.");
+                if salesLine.FindSet() then
+                    repeat
+                        salesLine.Validate("Location Code", rec."Location Code");
+                        salesLine.Modify();
+                    until salesLine.Next() = 0;
             end;
         }
         modify("Ship-to County")
@@ -211,5 +213,9 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
     //         end;
     //     end;
     // end;
+
+    var
+        ORBSingleInstGbl: Codeunit "ORB Single Instance";
+        DimUpdateFromDimWindowGbl: Boolean;
 
 }

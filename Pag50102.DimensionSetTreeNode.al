@@ -4,7 +4,9 @@ page 50102 "Dimension Set Tree Node"
     Caption = 'Dimension Set Tree Node';
     PageType = List;
     SourceTable = "Dimension Set Tree Node";
-    UsageCategory = Lists;
+    UsageCategory = Tasks;
+    Editable = true;
+    Permissions = tabledata 481 = RIMD;
 
     layout
     {
@@ -28,6 +30,80 @@ page 50102 "Dimension Set Tree Node"
                 {
                     ToolTip = 'Specifies the value of the In Use field.';
                 }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(TransfertoTemp)
+            {
+                Caption = 'Transfer to Temp';
+                ApplicationArea = all;
+                trigger OnAction()
+                Var
+                    ORBDimensionSetTreeNode: Record "ORB Dimension Set Tree Node";
+                begin
+                    if not Confirm('Do you want to proceed?', false) then
+                        exit;
+
+                    if Rec.FindSet() then
+                        repeat
+                            ORBDimensionSetTreeNode.Init();
+                            ORBDimensionSetTreeNode.TransferFields(Rec);
+                            ORBDimensionSetTreeNode.Insert();
+                        until Rec.Next() = 0;
+                end;
+            }
+            action(TransferfromTemp)
+            {
+                Caption = 'Transfer From Temp';
+                ApplicationArea = all;
+                trigger OnAction()
+                Var
+                    ORBDimensionSetTreeNode: Record "ORB Dimension Set Tree Node";
+                begin
+                    if not Confirm('Do you want to proceed?', false) then
+                        exit;
+
+                    if ORBDimensionSetTreeNode.FindSet() then
+                        repeat
+                            Rec.Init();
+                            Rec.TransferFields(ORBDimensionSetTreeNode);
+                            Rec.Insert();
+                        until ORBDimensionSetTreeNode.Next() = 0;
+                end;
+            }
+
+            action(DeleteSetTree)
+            {
+                Caption = 'Delete Set Tree details';
+                ApplicationArea = all;
+                trigger OnAction()
+                begin
+                    if not Confirm('Do you want to proceed?', false) then
+                        exit;
+
+                    Rec.DeleteAll();
+                end;
+            }
+
+
+            action(DeleteTemp)
+            {
+                Caption = 'Delete Records in Temp';
+                ApplicationArea = all;
+                trigger OnAction()
+                Var
+                    ORBDimensionSetTreeNode: Record "ORB Dimension Set Tree Node";
+                begin
+                    if not Confirm('Do you want to proceed?', false) then
+                        exit;
+
+                    ORBDimensionSetTreeNode.DeleteAll();
+                end;
             }
         }
     }

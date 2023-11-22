@@ -50,4 +50,21 @@ codeunit 60100 "ORBUS.SubscriptionMgt"
     // begin
     //     OrbusAssemblyMgt.CreateProdAssemblyBOM(AssemblyHeader);
     // end;
+
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnShowDocDimOnBeforeSalesHeaderModify, '', false, false)]
+    local procedure OnShowDocDimOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header");
+    begin
+        if (SalesHeader."Shortcut Dimension 1 Code" <> SalesHeader."Location Code") then begin
+            ORBSingleInstGbl.SetDimUpdateFromDimWindow(true);
+            if (SalesHeader."Shortcut Dimension 1 Code" <> '') then
+                SalesHeader.Validate("Location Code", SalesHeader."Shortcut Dimension 1 Code")
+            else
+                SalesHeader.Validate("Location Code", '');
+            ORBSingleInstGbl.SetDimUpdateFromDimWindow(false);
+        end
+    end;
+
+    var
+        ORBSingleInstGbl: Codeunit "ORB Single Instance";
 }

@@ -33,13 +33,12 @@ tableextension 50104 ORBAPPSalesLineEx extends "Sales Line"
                 /*
                 ModLocationCode.Run(Rec)
                 */
-                // if Rec."Location Code" <> '' then
-                //     rec.validate("Shortcut Dimension 1 Code", rec."Location Code")
-                // else begin
-                //     if rec."Shortcut Dimension 1 Code" <> '' then
-                //         Validate("Shortcut Dimension 1 Code", '');
-                // end;
-
+                if Rec."Location Code" <> '' then
+                    rec.validate("Shortcut Dimension 1 Code", rec."Location Code")
+                else begin
+                    if rec."Shortcut Dimension 1 Code" <> '' then
+                        Validate("Shortcut Dimension 1 Code", '');
+                end;
                 //ValidateShortcutDimCode(1, rec."Location Code");
             end;
         }
