@@ -7,7 +7,7 @@ tableextension 60300 "ORBUS.PurchLineExt" extends "Purchase Line"
             Caption = 'Shortcut Dimension 3 Code';
             DataClassification = CustomerContent;
             CaptionClass = '1,2,3';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No."=CONST(3), Blocked=CONST(false));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(3), Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -19,7 +19,7 @@ tableextension 60300 "ORBUS.PurchLineExt" extends "Purchase Line"
             Caption = 'Shortcut Dimension 4 Code';
             DataClassification = CustomerContent;
             CaptionClass = '1,2,4';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No."=CONST(4), Blocked=CONST(false));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(4), Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -31,7 +31,7 @@ tableextension 60300 "ORBUS.PurchLineExt" extends "Purchase Line"
             Caption = 'Shortcut Dimension 5 Code';
             DataClassification = CustomerContent;
             CaptionClass = '1,2,5';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No."=CONST(5), Blocked=CONST(false));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(5), Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -43,7 +43,7 @@ tableextension 60300 "ORBUS.PurchLineExt" extends "Purchase Line"
             Caption = 'Shortcut Dimension 6 Code';
             DataClassification = CustomerContent;
             CaptionClass = '1,2,6';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No."=CONST(6), Blocked=CONST(false));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6), Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -55,7 +55,7 @@ tableextension 60300 "ORBUS.PurchLineExt" extends "Purchase Line"
             Caption = 'Shortcut Dimension 7 Code';
             DataClassification = CustomerContent;
             CaptionClass = '1,2,7';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No."=CONST(7), Blocked=CONST(false));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(7), Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -67,32 +67,35 @@ tableextension 60300 "ORBUS.PurchLineExt" extends "Purchase Line"
             Caption = 'Shortcut Dimension 8 Code';
             DataClassification = CustomerContent;
             CaptionClass = '1,2,8';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No."=CONST(8), Blocked=CONST(false));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(8), Blocked = CONST(false));
 
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(8, "Shortcut Dimension 8 Code");
             end;
         }
-        modify("Dimension Set ID")
-        {
-        trigger OnAfterValidate()
-        begin
-            SetExtendedShortcutDimensions();
-        end;
-        }
+        //DimFix
+        // modify("Dimension Set ID")
+        // {
+        // trigger OnAfterValidate()
+        // begin
+        //     SetExtendedShortcutDimensions();
+        // end;
+        // }
     }
-    procedure SetExtendedShortcutDimensions()
-    var
-        DimMgt: Codeunit DimensionManagement;
-        ShortcutDimCodes: array[8]of Code[20];
-    begin
-        DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCodes);
-        Rec."Shortcut Dimension 3 Code":=ShortcutDimCodes[3];
-        Rec."Shortcut Dimension 4 Code":=ShortcutDimCodes[4];
-        Rec."Shortcut Dimension 5 Code":=ShortcutDimCodes[5];
-        Rec."Shortcut Dimension 6 Code":=ShortcutDimCodes[6];
-        Rec."Shortcut Dimension 7 Code":=ShortcutDimCodes[7];
-        Rec."Shortcut Dimension 8 Code":=ShortcutDimCodes[8];
-    end;
+
+    //DimFix
+    // procedure SetExtendedShortcutDimensions()
+    // var
+    //     DimMgt: Codeunit DimensionManagement;
+    //     ShortcutDimCodes: array[8] of Code[20];
+    // begin
+    //     DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCodes);
+    //     Rec."Shortcut Dimension 3 Code" := ShortcutDimCodes[3];
+    //     Rec."Shortcut Dimension 4 Code" := ShortcutDimCodes[4];
+    //     Rec."Shortcut Dimension 5 Code" := ShortcutDimCodes[5];
+    //     Rec."Shortcut Dimension 6 Code" := ShortcutDimCodes[6];
+    //     Rec."Shortcut Dimension 7 Code" := ShortcutDimCodes[7];
+    //     Rec."Shortcut Dimension 8 Code" := ShortcutDimCodes[8];
+    // end;
 }

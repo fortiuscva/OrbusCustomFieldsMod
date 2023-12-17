@@ -2,7 +2,7 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
 {
     fields
     {
-        field(50102; "Order Status";Enum OrderStatus)
+        field(50102; "Order Status"; Enum OrderStatus)
         {
             DataClassification = ToBeClassified;
             Caption = 'Order Status';
@@ -15,18 +15,22 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
                 DimensionSetEntry: Record "Dimension Set Entry";
                 ModLocationCodeHeader: Codeunit ModLocationCodeHeader;
             begin
-                if(Rec."Document Type" = Rec."Document Type"::Order) or (Rec."Document Type" = Rec."Document Type"::Quote) or (Rec."Document Type" = Rec."Document Type"::"Return Order")then begin
-                    ModLocationCodeHeader.InsertDimensionSetEntryFromSalesHeader(Rec);
-                    SalesLine.Reset();
-                    SalesLine.SetRange("Document No.", Rec."No.");
-                    if SalesLine.FindSet()then repeat DimensionSetEntry.Reset();
-                            DimensionSetEntry.SetRange("Dimension Set ID", SalesLine."Dimension Set ID");
-                            DimensionSetEntry.SetFilter("Dimension Code", 'LOC');
-                            if DimensionSetEntry.FindFirst()then exit
-                            else
-                                GetDimSetValues.GetDimSetValues(SalesLine."Shortcut Dimension 1 Code", SalesLine."Dimension Set ID");
-                        until SalesLine.Next() = 0;
-                end;
+                //DimFix
+                // if (Rec."Document Type" = Rec."Document Type"::Order) or (Rec."Document Type" = Rec."Document Type"::Quote) or (Rec."Document Type" = Rec."Document Type"::"Return Order") then begin
+                //     ModLocationCodeHeader.InsertDimensionSetEntryFromSalesHeader(Rec);
+                //     SalesLine.Reset();
+                //     SalesLine.SetRange("Document No.", Rec."No.");
+                //     if SalesLine.FindSet() then
+                //         repeat
+                //             DimensionSetEntry.Reset();
+                //             DimensionSetEntry.SetRange("Dimension Set ID", SalesLine."Dimension Set ID");
+                //             DimensionSetEntry.SetFilter("Dimension Code", 'LOC');
+                //             if DimensionSetEntry.FindFirst() then
+                //                 exit
+                //             else
+                //                 GetDimSetValues.GetDimSetValues(SalesLine."Shortcut Dimension 1 Code", SalesLine."Dimension Set ID");
+                //         until SalesLine.Next() = 0;
+                // end;
             end;
         }
         field(50103; "Location Override"; Boolean)
@@ -50,79 +54,127 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
         }
         modify("Location Code")
         {
-        trigger OnAfterValidate()
-        var
-            setLocationCodeUnit: Codeunit "ORBAPP Set Location";
-            salesLine: Record "Sales Line";
-            salesHeader: Record "Sales Header";
-            ModLocationCodeHeader: Codeunit ModLocationCodeHeader;
-        begin
-            salesHeader.Reset();
-            salesHeader.SetRange("No.", Rec."No.");
-            if salesHeader.FindFirst()then begin
-                salesLine.Reset();
-                salesLine.SetRange("Document No.", Rec."No.");
-                if salesLine.FindSet()then begin
-                    salesLine.ModifyAll("Location Code", Rec."Location Code");
-                    salesLine.ModifyAll("Shortcut Dimension 1 Code", Rec."Location Code");
+            trigger OnAfterValidate()
+            var
+                setLocationCodeUnit: Codeunit "ORBAPP Set Location";
+                salesLine: Record "Sales Line";
+                salesHeader: Record "Sales Header";
+                DimSetEntry: Record "Dimension Set Entry";
+                TempDimSetEntry: Record "Dimension Set Entry" temporary;
+                ModLocationCodeHeader: Codeunit ModLocationCodeHeader;
+                DimMgt: Codeunit DimensionManagement;
+            begin
+                //DimFix
+                // /*
+                // salesHeader.Reset();
+                // salesHeader.SetRange("No.", Rec."No.");
+                // if salesHeader.FindFirst()then begin
+                //     salesLine.Reset();
+                //     salesLine.SetRange("Document No.", Rec."No.");
+                //     if salesLine.FindSet()then begin
+                //         salesLine.ModifyAll("Location Code", Rec."Location Code");
+                //         salesLine.ModifyAll("Shortcut Dimension 1 Code", Rec."Location Code");
+                //     end;
+                //     Rec."Shortcut Dimension 1 Code":=Rec."Location Code";
+                //     Rec.Modify();
+                //     ModLocationCodeHeader.Run(Rec);
+                //     ModLocationCodeHeader.ModifyDimSetEntry2(Rec);
+                // end;
+                // */
+                // if Rec."Location Code" <> '' then
+                //     Rec.Validate("Shortcut Dimension 1 Code", Rec."Location Code");
+
+
+
+                // salesLine.Reset();
+                // salesLine.SetRange("Document Type", Rec."Document Type");
+                // salesLine.SetRange("Document No.", Rec."No.");
+                // if salesLine.FindSet() then
+                //     repeat
+                //         salesLine.Validate("Location Code", rec."Location Code");
+                //         //if salesLine."Location Code" <> '' then
+                //         //salesLine.validate("Shortcut Dimension 1 Code", salesLine."Location Code");
+                //         salesLine.Modify();
+                //     until salesLine.Next() = 0;
+
+                DimUpdateFromDimWindowGbl := ORBSingleInstGbl.GetDimUpdateFromDimWindow();
+                if not DimUpdateFromDimWindowGbl then begin
+                    if rec."Location Code" <> '' then
+                        Validate("Shortcut Dimension 1 Code", rec."Location Code")
+                    else begin
+                        if rec."Shortcut Dimension 1 Code" <> '' then
+                            Validate("Shortcut Dimension 1 Code", '');
+                    end;
                 end;
-                Rec."Shortcut Dimension 1 Code":=Rec."Location Code";
-                Rec.Modify();
-                ModLocationCodeHeader.Run(Rec);
-                ModLocationCodeHeader.ModifyDimSetEntry2(Rec);
+
+                salesLine.Reset();
+                salesLine.SetRange("Document Type", Rec."Document Type");
+                salesLine.SetRange("Document No.", Rec."No.");
+                if salesLine.FindSet() then
+                    repeat
+                        salesLine.Validate("Location Code", rec."Location Code");
+                        salesLine.Modify();
+                    until salesLine.Next() = 0;
             end;
-        end;
         }
         modify("Ship-to County")
         {
-        trigger OnAfterValidate()
-        var
-            OrbusLocation: Record OrbusLocations;
-            DimensionsetEntry: Record "Dimension Set Entry";
-            DimensionValue: Record "Dimension Value";
-            ModLocationCodeHeader: Codeunit ModLocationCodeHeader;
-        begin
-            if StrLen(Rec."Ship-to County") > 2 then Rec."Ship-to County":=CopyStr(Rec."Ship-to County", 1, 2);
-            Rec."Ship-to County":=UpperCase(Rec."Ship-to County");
-            Rec.Modify();
-            OrbusLocation.Reset();
-            OrbusLocation.SetRange("Orbus State Text", Rec."Ship-to County");
-            if OrbusLocation.FindFirst()then begin
-                Rec."Location Code":=OrbusLocation.OrbusLocation;
-                Rec."Shortcut Dimension 1 Code":=OrbusLocation.OrbusLocation;
-                Rec.Modify();
-                SalesLine.Reset();
-                SalesLine.SetRange("Document No.", Rec."No.");
-                if SalesLine.FindSet()then begin
-                    SalesLine.ModifyAll(SalesLine."Location Code", OrbusLocation.OrbusLocation);
-                    SalesLine.ModifyAll(SalesLine."Shortcut Dimension 1 Code", OrbusLocation.OrbusLocation);
-                end;
-                ModLocationCodeHeader.Run(Rec);
-                ModLocationCodeHeader.ModifyDimSetEntry(Rec, OrbusLocation);
+            trigger OnAfterValidate()
+            var
+                OrbusLocation: Record OrbusLocations;
+                DimensionsetEntry: Record "Dimension Set Entry";
+                DimensionValue: Record "Dimension Value";
+                ModLocationCodeHeader: Codeunit ModLocationCodeHeader;
+            begin
+                //DimFix
+                // if StrLen(Rec."Ship-to County") > 2 then Rec."Ship-to County" := CopyStr(Rec."Ship-to County", 1, 2);
+                // Rec."Ship-to County" := UpperCase(Rec."Ship-to County");
+                // Rec.Modify();
+                // 
+                // OrbusLocation.Reset();
+                // OrbusLocation.SetRange("Orbus State Text", Rec."Ship-to County");
+                // if OrbusLocation.FindFirst() then begin
+                //     Rec."Location Code" := OrbusLocation.OrbusLocation;
+                //     Rec."Shortcut Dimension 1 Code" := OrbusLocation.OrbusLocation;
+                //     Rec.Modify();
+                //     SalesLine.Reset();
+                //     SalesLine.SetRange("Document No.", Rec."No.");
+                //     if SalesLine.FindSet() then begin
+                //         SalesLine.ModifyAll(SalesLine."Location Code", OrbusLocation.OrbusLocation);
+                //         SalesLine.ModifyAll(SalesLine."Shortcut Dimension 1 Code", OrbusLocation.OrbusLocation);
+                //     end;
+                //     ModLocationCodeHeader.Run(Rec);
+                //     ModLocationCodeHeader.ModifyDimSetEntry(Rec, OrbusLocation);
+                // end;
+                //
             end;
-        end;
         }
         modify("Sell-to Customer Name")
         {
-        trigger OnAfterValidate()
-        var
-        begin
-            GetLocationCodeFromOrbusLocationTable()end;
+            trigger OnAfterValidate()
+            var
+            begin
+                //DimFix
+                // GetLocationCodeFromOrbusLocationTable()
+            end;
         }
         modify("Sell-to Customer No.")
         {
-        trigger OnAfterValidate()
-        var
-        begin
-            GetLocationCodeFromOrbusLocationTable()end;
+            trigger OnAfterValidate()
+            var
+            begin
+                //DimFix
+                // GetLocationCodeFromOrbusLocationTable()
+            end;
         }
     }
     trigger OnAfterInsert()
     var
     begin
-        if(Rec."Sell-to Customer No." <> '')then //     // setLocationCodeUnit.SetOrbusLocation(Rec);
+        if (Rec."Sell-to Customer No." <> '') then //     // setLocationCodeUnit.SetOrbusLocation(Rec);
             SetLocation(false);
     end;
+
     trigger OnAfterModify()
     var
     begin
@@ -130,30 +182,40 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
         //     setLocationCodeUnit.SetOrbusLocation(Rec);
         SetLocation(true);
     end;
+
     procedure SetLocation(isModify: Boolean)
     var
         setLocationCodeUnit: Codeunit "ORBAPP Set Location";
     begin
-        if(Rec."Sell-to Customer No." = '')then exit;
-        if isModify then if(Rec."Location Override" = true)then // SAR 02.24.23 - Reinserted this check.
- exit;
-        setLocationCodeUnit.SetOrbusLocation(Rec);
+        if (Rec."Sell-to Customer No." = '') then exit;
+        if isModify then
+            if (Rec."Location Override" = true) then // SAR 02.24.23 - Reinserted this check.
+                exit;
+        //DimFix
+        // setLocationCodeUnit.SetOrbusLocation(Rec);
     end;
-    procedure GetLocationCodeFromOrbusLocationTable()
+
+    //DimFix
+    // procedure GetLocationCodeFromOrbusLocationTable()
+    // var
+    //     OrbusLocation: Record OrbusLocations;
+    //     var1: Text;
+    //     DimensionSetEntry: Record "Dimension Set Entry";
+    //     DimensionValue: Record "Dimension Value";
+    // begin
+    //     if (Rec."Document Type" = Rec."Document Type"::Order) or (Rec."Document Type" = Rec."Document Type"::Quote) or (Rec."Document Type" = Rec."Document Type"::"Return Order") then begin
+    //         OrbusLocation.Reset();
+    //         OrbusLocation.SetRange("Orbus State Text", Rec."Ship-to County");
+    //         if OrbusLocation.FindFirst() then begin
+    //             Rec."Location Code" := OrbusLocation.OrbusLocation;
+    //             Rec."Shortcut Dimension 1 Code" := OrbusLocation.OrbusLocation;
+    //             /*Rec.Modify();*/
+    //         end;
+    //     end;
+    // end;
+
     var
-        OrbusLocation: Record OrbusLocations;
-        var1: Text;
-        DimensionSetEntry: Record "Dimension Set Entry";
-        DimensionValue: Record "Dimension Value";
-    begin
-        if(Rec."Document Type" = Rec."Document Type"::Order) or (Rec."Document Type" = Rec."Document Type"::Quote) or (Rec."Document Type" = Rec."Document Type"::"Return Order")then begin
-            OrbusLocation.Reset();
-            OrbusLocation.SetRange("Orbus State Text", Rec."Ship-to County");
-            if OrbusLocation.FindFirst()then begin
-                Rec."Location Code":=OrbusLocation.OrbusLocation;
-                Rec."Shortcut Dimension 1 Code":=OrbusLocation.OrbusLocation;
-            /*Rec.Modify();*/
-            end;
-        end;
-    end;
+        ORBSingleInstGbl: Codeunit "ORB Single Instance";
+        DimUpdateFromDimWindowGbl: Boolean;
+
 }

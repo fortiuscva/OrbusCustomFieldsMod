@@ -2,14 +2,14 @@ pageextension 60103 "ORBUS.PurchReturnOrderSubform" extends "Purchase Return Ord
 {
     layout
     {
-        modify("Shortcut Dimension 1 Code")
-        {
-            Visible = true;
-        }
-        modify("Shortcut Dimension 2 Code")
-        {
-            Visible = true;
-        }
+        // modify("Shortcut Dimension 1 Code")
+        // {
+        //     Visible = true;
+        // }
+        // modify("Shortcut Dimension 2 Code")
+        // {
+        //     Visible = true;
+        // }
         addafter("Shortcut Dimension 2 Code")
         {
             field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")

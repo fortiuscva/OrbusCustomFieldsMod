@@ -12,7 +12,7 @@ table 50102 OrbusLocations
             Caption = 'Ship from Location';
             TableRelation = Location;
         }
-        field(2; OrbusState;Enum StateOptions)
+        field(2; OrbusState; Enum StateOptions)
         {
             DataClassification = ToBeClassified;
             Caption = 'State';
@@ -28,16 +28,21 @@ table 50102 OrbusLocations
             Clustered = true;
         }
     }
-    var myInt: Integer;
+    var
+        myInt: Integer;
+
     trigger OnInsert()
     begin
     end;
+
     trigger OnModify()
     begin
     end;
+
     trigger OnDelete()
     begin
     end;
+
     trigger OnRename()
     begin
     end;

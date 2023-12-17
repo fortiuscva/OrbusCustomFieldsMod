@@ -2,14 +2,14 @@ pageextension 60105 "ORBUS.PurchInvSubform" extends "Purch. Invoice Subform"
 {
     layout
     {
-        modify("Shortcut Dimension 1 Code")
-        {
-            Visible = true;
-        }
-        modify("Shortcut Dimension 2 Code")
-        {
-            Visible = true;
-        }
+        // modify("Shortcut Dimension 1 Code")
+        // {
+        //     Visible = true;
+        // }
+        // modify("Shortcut Dimension 2 Code")
+        // {
+        //     Visible = true;
+        // }
         addafter("Shortcut Dimension 2 Code")
         {
             field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
