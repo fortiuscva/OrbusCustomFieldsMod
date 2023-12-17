@@ -180,7 +180,7 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
     begin
         // if (Rec."Location Code" = '') then // SAR 02.24.23 - Reinserted this check.
         //     setLocationCodeUnit.SetOrbusLocation(Rec);
-        SetLocation(true);
+        //SetLocation(true);
     end;
 
     procedure SetLocation(isModify: Boolean)
