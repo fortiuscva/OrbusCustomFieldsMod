@@ -127,10 +127,17 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
                 ModLocationCodeHeader: Codeunit ModLocationCodeHeader;
             begin
                 //DimFix
-                // if StrLen(Rec."Ship-to County") > 2 then Rec."Ship-to County" := CopyStr(Rec."Ship-to County", 1, 2);
-                // Rec."Ship-to County" := UpperCase(Rec."Ship-to County");
+                if StrLen(Rec."Ship-to County") > 2 then
+                    Rec."Ship-to County" := CopyStr(Rec."Ship-to County", 1, 2);
+
+                Rec."Ship-to County" := UpperCase(Rec."Ship-to County");
                 // Rec.Modify();
-                // 
+
+                OrbusLocation.Reset();
+                OrbusLocation.SetRange("Orbus State Text", Rec."Ship-to County");
+                if OrbusLocation.FindFirst() then
+                    Rec.Validate("Location Code", OrbusLocation.OrbusLocation);
+
                 // OrbusLocation.Reset();
                 // OrbusLocation.SetRange("Orbus State Text", Rec."Ship-to County");
                 // if OrbusLocation.FindFirst() then begin
@@ -155,7 +162,7 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
             var
             begin
                 //DimFix
-                // GetLocationCodeFromOrbusLocationTable()
+                GetLocationCodeFromOrbusLocationTable()
             end;
         }
         modify("Sell-to Customer No.")
@@ -164,7 +171,7 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
             var
             begin
                 //DimFix
-                // GetLocationCodeFromOrbusLocationTable()
+                GetLocationCodeFromOrbusLocationTable()
             end;
         }
     }
@@ -180,7 +187,7 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
     begin
         // if (Rec."Location Code" = '') then // SAR 02.24.23 - Reinserted this check.
         //     setLocationCodeUnit.SetOrbusLocation(Rec);
-        //SetLocation(true);
+        //  SetLocation(true);
     end;
 
     procedure SetLocation(isModify: Boolean)
@@ -192,7 +199,7 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
             if (Rec."Location Override" = true) then // SAR 02.24.23 - Reinserted this check.
                 exit;
         //DimFix
-        // setLocationCodeUnit.SetOrbusLocation(Rec);
+        //setLocationCodeUnit.SetOrbusLocation(Rec);
     end;
 
     //DimFix
@@ -213,6 +220,21 @@ tableextension 50102 SalesHeaderEx extends "Sales Header"
     //         end;
     //     end;
     // end;
+
+    procedure GetLocationCodeFromOrbusLocationTable()
+    var
+        OrbusLocation: Record OrbusLocations;
+        var1: Text;
+        DimensionSetEntry: Record "Dimension Set Entry";
+        DimensionValue: Record "Dimension Value";
+    begin
+        if (Rec."Document Type" = Rec."Document Type"::Order) or (Rec."Document Type" = Rec."Document Type"::Quote) or (Rec."Document Type" = Rec."Document Type"::"Return Order") then begin
+            OrbusLocation.Reset();
+            OrbusLocation.SetRange("Orbus State Text", Rec."Ship-to County");
+            if OrbusLocation.FindFirst() then
+                Rec.Validate("Location Code", OrbusLocation.OrbusLocation);
+        end;
+    end;
 
     var
         ORBSingleInstGbl: Codeunit "ORB Single Instance";
