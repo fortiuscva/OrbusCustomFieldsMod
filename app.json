@@ -3,7 +3,7 @@
   "name": "OrbusCustomFieldsMod",
   "publisher": "Orbus, Inc.",
   "description": "Update to Order Status. Adding In Production",
-  "version": "1.0.2.50",
+  "version": "1.0.2.51",
   "url": "https://www.impactmybiz.com/",
   "runtime": "11.0",
   "target": "Cloud",
